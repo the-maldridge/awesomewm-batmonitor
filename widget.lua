@@ -61,20 +61,30 @@ local function _scale(charge)
 end
 
 local function _update()
-   charge = _scale(power())
-   if show_text then
-      local markup = '<span color="white">'..power()..'%</span>'
-      batText:set_markup(markup)
+   if(power() == nil) then
+      return nil
+   else
+      charge = _scale(power())
+      if show_text then
+	 local markup = '<span color="white">'..power()..'%</span>'
+	 batText:set_markup(markup)
+      end
+      chargeBar:set_value(charge)
+      chargeBar.setColor(charge)
    end
-   chargeBar:set_value(charge)
-   chargeBar.setColor(charge)
 end
 
 -- set timer to reload
-updateTimer = timer({timeout=30})
-updateTimer:connect_signal('timeout', _update)
-updateTimer:start()
+local function registerTimers()
+   updateTimer = timer({timeout=30})
+   updateTimer:connect_signal('timeout', _update)
+   updateTimer:start()
+end
 
 -- initialize
-_update()
-return batWidget
+if(_update() ~= nil) then
+   registerTimers()
+   return batWidget
+else
+   return nil
+end
